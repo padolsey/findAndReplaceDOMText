@@ -43,9 +43,10 @@ test('StencilNode definition', function() {
 	findAndReplaceDOMText(/test/ig, d, 'div');
 	equal(d.innerHTML, '<div>test</div> <div>test</div>');
 	d.innerHTML = 'test test';
-	findAndReplaceDOMText(/test/ig, d, function() {
+	findAndReplaceDOMText(/test/ig, d, function(fill) {
 		var e = document.createElement('x');
 		e.className = 'f';
+		fill&&e.appendChild(document.createTextNode(fill));
 		return e;
 	});
 	equal(d.innerHTML, '<x class="f">test</x> <x class="f">test</x>');

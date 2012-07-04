@@ -50,7 +50,7 @@ The third argument to `findAndReplaceDOMText` can be one of:
 
  * A nodeName (e.g. `"em"` or `"span"`)
  * A "stencil" node that will be cloned.
- * A function which will return an element whenever called with a match
+ * A function which will return an element whenever called with a match portion (text)
 
 E.g. if I wanted to replace every instance of `foo` in an element with `<span class="found">` I would simply do:
 

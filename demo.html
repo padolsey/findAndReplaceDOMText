@@ -54,7 +54,7 @@ input.onkeyup = function() {
 	warning.style.display = 'none';
 	if (input.value) {
 		isInit = true;
-		var count = 0;
+		var called = false;
 		try {
 			var regex = RegExp(input.value, 'gi');
 		} catch(e) {
@@ -66,9 +66,11 @@ input.onkeyup = function() {
 			findAndReplaceDOMText(
 				regex,
 				container,
-				function() {
+				function(fill, matchIndex) {
+					called = true;
 					var el = document.createElement('em');
-					el.style.backgroundColor = colors[++count%colors.length];
+					el.style.backgroundColor = colors[matchIndex%colors.length];
+					el.innerHTML = fill;
 					return el;
 				}
 			);
@@ -78,7 +80,7 @@ input.onkeyup = function() {
 			throw e;
 			return;
 		}
-		if (count === 0) {
+		if (!called) {
 			warning.innerHTML = 'No matches :(';
 			warning.style.display = 'inline';
 		}
@@ -89,9 +91,10 @@ input.onkeyup = function() {
 findAndReplaceDOMText(
 	/\w+/g,
 	container,
-	function() {
+	function(fill, matchIndex) {
 		var el = document.createElement('span');
 		el.style.fontSize = (Math.random() + .6) + 'em';
+		el.innerHTML = fill;
 		return el;
 	}
 );
