@@ -189,7 +189,7 @@ window.findAndReplaceDOMText = (function() {
           node.parentNode.insertBefore(before, node);
         }
         // Create the replacement node:
-        var el = stencilNode.cloneNode();
+        var el = stencilNode.cloneNode(false);
         el.appendChild(document.createTextNode(range.match[0]));
         node.parentNode.insertBefore(el, node);
         if (range.endNodeIndex < node.length) {
@@ -209,8 +209,8 @@ window.findAndReplaceDOMText = (function() {
         // B4 - innerNodes - After
         var before = document.createTextNode(range.startNode.data.substring(0, range.startNodeIndex));
         var after = document.createTextNode(range.endNode.data.substring(range.endNodeIndex));
-        var elA = stencilNode.cloneNode();
-        var elB = stencilNode.cloneNode();
+        var elA = stencilNode.cloneNode(false);
+        var elB = stencilNode.cloneNode(false);
         var innerSpans = [];
         elA.appendChild(document.createTextNode(range.startNode.data.substring(range.startNodeIndex)));
         elB.appendChild(document.createTextNode(range.endNode.data.substring(0, range.endNodeIndex)));
@@ -222,7 +222,7 @@ window.findAndReplaceDOMText = (function() {
         range.endNode.parentNode.removeChild(range.endNode);
         for (var i = 0, l = range.innerNodes.length; i < l; ++i) {
           var innerNode = range.innerNodes[i];
-          var innerSpan = stencilNode.cloneNode();
+          var innerSpan = stencilNode.cloneNode(false);
           innerNode.parentNode.insertBefore(innerSpan, innerNode);
           innerSpan.appendChild(innerNode);
           innerSpans.push(innerSpan);
