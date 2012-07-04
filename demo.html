@@ -75,6 +75,7 @@ input.onkeyup = function() {
 		} catch(e) {
 			warning.innerHTML = 'Error: ' + e;
 			warning.style.display = 'inline';
+			throw e;
 			return;
 		}
 		if (count === 0) {
