@@ -46,7 +46,7 @@ test('StencilNode definition', function() {
 	findAndReplaceDOMText(/test/ig, d, function(fill) {
 		var e = document.createElement('x');
 		e.className = 'f';
-		fill&&e.appendChild(document.createTextNode(fill));
+		e.appendChild(document.createTextNode(fill));
 		return e;
 	});
 	equal(d.innerHTML, '<x class="f">test</x> <x class="f">test</x>');
@@ -72,3 +72,18 @@ test('Edge case text nodes', function() {
 	equal(d.childNodes[2], t2);
 });
 
+test('Custom replacement function', function() {
+	var d = document.createElement('div');
+	d.innerHTML = 'aaaaa';
+	findAndReplaceDOMText(/a/g, d, function(fill) {
+		return document.createTextNode('b' + fill);
+	});
+	equal(d.innerHTML, 'bababababa');
+	d.innerHTML = '1234';
+	findAndReplaceDOMText(/\d/g, d, function(fill) {
+		var e = document.createElement('u');
+		e.innerHTML = fill + '_';
+		return e;
+	});
+	equal(d.innerHTML, '<u>1_</u><u>2_</u><u>3_</u><u>4_</u>');
+});
