@@ -1,5 +1,13 @@
 
-
+function htmlEqual(a, b) {
+	a = a.toLowerCase().replace(/[\r\n]/g,'');
+	b = b.toLowerCase().replace(/[\r\n]/g,'');
+	// IE replace things like `class="f"` with `class=f`, so let's just
+	// do it, by default, in the comparee string
+	a = a.replace(/="([^"]+)"/g, '=$1');
+	b = b.replace(/="([^"]+)"/g, '=$1');
+	return equal(a, b); // IE caps <TAGs>s
+}
 
 test('Element boundery types', function() {
 
@@ -18,12 +26,12 @@ test('Element boundery types', function() {
 	for (var t in tests) {
 		d.innerHTML = t;
 		findAndReplaceDOMText(/TEST/, d, 'x');
-		ok(d.innerHTML === tests[t], '"' + d.innerHTML + '" === "' + tests[t] + '"');
+		htmlEqual(d.innerHTML, tests[t]);
 		d.innerHTML = t;
 		findAndReplaceDOMText(/TEST/g, d, 'x');
-		ok(d.innerHTML === tests[t], '[g flag] "' + d.innerHTML + '" === "' + tests[t] + '"');
+		htmlEqual(d.innerHTML, tests[t]);
 		findAndReplaceDOMText.revert();
-		ok(d.innerHTML === t, 'Revert worked');
+		htmlEqual(d.innerHTML, t);
 	}
 
 });
@@ -33,7 +41,7 @@ test('Match lengths', function() {
 	for (var i = 0; i < 100; ++i) {
 		d.innerHTML = Array(i + 1).join('<em>x</em>');
 		findAndReplaceDOMText(/x+/, d, 'z');
-		equal(d.innerHTML, Array(i + 1).join('<em><z>x</z></em>'))
+		htmlEqual(d.innerHTML, Array(i + 1).join('<em><z>x</z></em>'))
 	}
 });
 
@@ -41,7 +49,7 @@ test('StencilNode definition', function() {
 	var d = document.createElement('div');
 	d.innerHTML = 'test test';
 	findAndReplaceDOMText(/test/ig, d, 'div');
-	equal(d.innerHTML, '<div>test</div> <div>test</div>');
+	htmlEqual(d.innerHTML, '<div>test</div> <div>test</div>');
 	d.innerHTML = 'test test';
 	findAndReplaceDOMText(/test/ig, d, function(fill) {
 		var e = document.createElement('x');
@@ -49,24 +57,20 @@ test('StencilNode definition', function() {
 		e.appendChild(document.createTextNode(fill));
 		return e;
 	});
-	equal(d.innerHTML, '<x class="f">test</x> <x class="f">test</x>');
+	htmlEqual(d.innerHTML, '<x class="f">test</x> <x class="f">test</x>');
 	d.innerHTML = 'test test';
 	findAndReplaceDOMText(/test/ig, d, document.createElement('z'));
-	equal(d.innerHTML, '<z>test</z> <z>test</z>');
+	htmlEqual(d.innerHTML, '<z>test</z> <z>test</z>');
 });
 
 test('Edge case text nodes', function() {
 	var d = document.createElement('div');
-	d.innerHTML = '   __\n \n\t ';
-	findAndReplaceDOMText(/__/, d, 'em');
-	equal(d.innerHTML, '   <em>__</em>\n \n\t ');
-	d.innerHTML = '';
 	// Empty text nodes
 	var t1 = d.appendChild(document.createTextNode(''));
 	d.appendChild(document.createTextNode('x'));
 	var t2 = d.appendChild(document.createTextNode(''));
 	findAndReplaceDOMText(/x/, d, 'em');
-	equal(d.innerHTML, '<em>x</em>');
+	htmlEqual(d.innerHTML, '<em>x</em>');
 	equal(d.childNodes.length, 3);
 	equal(d.childNodes[0], t1);
 	equal(d.childNodes[2], t2);
@@ -78,12 +82,12 @@ test('Custom replacement function', function() {
 	findAndReplaceDOMText(/a/g, d, function(fill) {
 		return document.createTextNode('b' + fill);
 	});
-	equal(d.innerHTML, 'bababababa');
+	htmlEqual(d.innerHTML, 'bababababa');
 	d.innerHTML = '1234';
 	findAndReplaceDOMText(/\d/g, d, function(fill) {
 		var e = document.createElement('u');
 		e.innerHTML = fill + '_';
 		return e;
 	});
-	equal(d.innerHTML, '<u>1_</u><u>2_</u><u>3_</u><u>4_</u>');
+	htmlEqual(d.innerHTML, '<u>1_</u><u>2_</u><u>3_</u><u>4_</u>');
 });
