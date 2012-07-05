@@ -53,7 +53,7 @@ var isInit = false;
 
 var colors = ['red', 'green', 'blue', 'purple', '#E67A00'];
 
-input.onkeyup = function() {
+var inputHandler = function() {
 	isInit && findAndReplaceDOMText.revert();
 	warning.style.display = 'none';
 	if (input.value) {
@@ -89,6 +89,13 @@ input.onkeyup = function() {
 			warning.style.display = 'inline';
 		}
 	}
+};
+
+// http://mathiasbynens.be/notes/oninput
+input.onkeyup = inputHandler;
+input.oninput = function() {
+	input.onkeyup = null;
+	inputHandler();
 };
 
 // Initial replacement to make words different sizes
