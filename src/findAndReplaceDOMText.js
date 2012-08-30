@@ -179,8 +179,13 @@ window.findAndReplaceDOMText = (function() {
     if (typeof nodeName != 'function') {
       var stencilNode = nodeName.nodeType ? nodeName : document.createElement(nodeName);
       makeReplacementNode = function(fill) {
-        var el = stencilNode.cloneNode(false);
-        fill && el.appendChild(document.createTextNode(fill));
+        var clone = document.createElement('div'),
+            el;
+        clone.innerHTML = stencilNode.outerHTML;
+        el = clone.firstChild;
+        if(fill) {
+          el.appendChild(document.createTextNode(fill));
+        }
         return el;
       };
     } else {
