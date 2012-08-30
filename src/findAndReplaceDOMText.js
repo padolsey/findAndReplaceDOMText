@@ -181,9 +181,9 @@ window.findAndReplaceDOMText = (function() {
       makeReplacementNode = function(fill) {
         var clone = document.createElement('div'),
             el;
-        clone.innerHTML = stencilNode.outerHTML;
+        clone.innerHTML = stencilNode.outerHTML || new XMLSerializer().serializeToString(stencilNode);
         el = clone.firstChild;
-        if(fill) {
+        if (fill) {
           el.appendChild(document.createTextNode(fill));
         }
         return el;
