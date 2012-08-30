@@ -59,3 +59,7 @@ var span = document.createElement('span');
 span.className = 'found';
 findAndReplaceDOMText(/foo/g, myElement, span);
 ```
+
+### Changelog
+
+0.1: Initial commit + Fix for IE's broken HTML5 cloneNode ([pull request](https://github.com/padolsey/findAndReplaceDOMText/pull/3))
