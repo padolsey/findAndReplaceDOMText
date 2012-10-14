@@ -91,3 +91,19 @@ test('Custom replacement function', function() {
 	});
 	htmlEqual(d.innerHTML, '<u>1_</u><u>2_</u><u>3_</u><u>4_</u>');
 });
+
+test('Custom replacement function - correct ordering', function() {
+	var d = document.createElement('div');
+	var nCalled = 0;
+	d.innerHTML = 'test<b>ing</b>123';
+	findAndReplaceDOMText(/testing[0-9]+/g, d, function(fill) {
+		switch (nCalled++) {
+			case 0: equal(fill, 'test'); break;
+			case 1: equal(fill, 'ing'); break;
+			case 2: equal(fill, '123'); break;
+			default: ok(false, 'Not expecting further matches');
+		}
+		return document.createTextNode(fill);
+	});
+	equal(nCalled, 3);
+});

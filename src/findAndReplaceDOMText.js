@@ -1,5 +1,5 @@
 /**
- * findAndReplaceDOMText v 0.1
+ * findAndReplaceDOMText v 0.11
  * @author James Padolsey http://james.padolsey.com
  * @license http://unlicense.org/UNLICENSE
  *
@@ -205,9 +205,8 @@ window.findAndReplaceDOMText = (function() {
           var before = document.createTextNode(node.data.substring(0, range.startNodeIndex));
           node.parentNode.insertBefore(before, node);
         }
+
         // Create the replacement node:
-       // var el = stencilNode.cloneNode(false);
-        //el.appendChild(document.createTextNode(range.match[0]));
         var el = makeReplacementNode(range.match[0], matchIndex);
         node.parentNode.insertBefore(el, node);
         if (range.endNodeIndex < node.length) {
@@ -224,25 +223,24 @@ window.findAndReplaceDOMText = (function() {
         });
         return el;
       } else {
-        // B4 - innerNodes - After
+        // Replace startNode -> [innerNodes...] -> endNode (in that order)
         var before = document.createTextNode(startNode.data.substring(0, range.startNodeIndex));
         var after = document.createTextNode(endNode.data.substring(range.endNodeIndex));
         var elA = makeReplacementNode(startNode.data.substring(range.startNodeIndex), matchIndex);
-        var elB = makeReplacementNode(endNode.data.substring(0, range.endNodeIndex), matchIndex);
         var innerEls = [];
-        //elA.appendChild(document.createTextNode());
-        startNode.parentNode.insertBefore(before, startNode);
-        startNode.parentNode.insertBefore(elA, startNode);
-        startNode.parentNode.removeChild(startNode);
-        endNode.parentNode.insertBefore(elB, endNode);
-        endNode.parentNode.insertBefore(after, endNode);
-        endNode.parentNode.removeChild(endNode);
         for (var i = 0, l = range.innerNodes.length; i < l; ++i) {
           var innerNode = range.innerNodes[i];
           var innerEl = makeReplacementNode(innerNode.data, matchIndex);
           innerNode.parentNode.replaceChild(innerEl, innerNode);
           innerEls.push(innerEl);
         }
+        var elB = makeReplacementNode(endNode.data.substring(0, range.endNodeIndex), matchIndex);
+        startNode.parentNode.insertBefore(before, startNode);
+        startNode.parentNode.insertBefore(elA, startNode);
+        startNode.parentNode.removeChild(startNode);
+        endNode.parentNode.insertBefore(elB, endNode);
+        endNode.parentNode.insertBefore(after, endNode);
+        endNode.parentNode.removeChild(endNode);
         reverts.push(function() {
           innerEls.unshift(elA);
           innerEls.push(elB);
