@@ -107,3 +107,35 @@ test('Custom replacement function - correct ordering', function() {
 	});
 	equal(nCalled, 3);
 });
+
+test('Capture groups', function() {
+
+	var text = 'TEST TESThello TESThello TESThello';
+	var d = document.createElement('div');
+
+	d.innerHTML = text;
+	findAndReplaceDOMText(/(TEST)hello/, d, 'x', 1);
+	htmlEqual(d.innerHTML, 'TEST <x>TEST</x>hello TESThello TESTHello');
+
+	d.innerHTML = text;
+	findAndReplaceDOMText(/(TEST)hello/g, d, 'x', 1);
+	htmlEqual(d.innerHTML, 'TEST <x>TEST</x>hello <x>TEST</x>hello <x>TEST</x>hello');
+
+	d.innerHTML = text;
+	findAndReplaceDOMText(/\s(TEST)(hello)/g, d, 'x', 2);
+	htmlEqual(d.innerHTML, 'TEST TEST<x>hello</x> TEST<x>hello</x> TEST<x>hello</x>');
+});
+
+test('Word boundaries', function() {
+
+	var text = 'a go matching at test wordat at';
+	var d = document.createElement('div');
+
+	d.innerHTML = text;
+	findAndReplaceDOMText(/\bat\b/, d, 'x');
+	htmlEqual(d.innerHTML, 'a go matching <x>at</x> test wordat at');
+
+	d.innerHTML = text;
+	findAndReplaceDOMText(/\bat\b/g, d, 'x');
+	htmlEqual(d.innerHTML, 'a go matching <x>at</x> test wordat <x>at</x>');
+});

@@ -29,31 +29,50 @@ window.findAndReplaceDOMText = (function() {
    * @param {String|Element|Function} replacementNode A NodeName,
    *  Node to clone, or a function which returns a node to use
    *  as the replacement node.
+   * @param {Number} captureGroup A number specifiying which capture
+   *  group to use in the match. (optional)
    */
-  function findAndReplaceDOMText(regex, node, replacementNode) {
+  function findAndReplaceDOMText(regex, node, replacementNode, captureGroup) {
 
-    var m, index, matches = [], text = _getText(node);
+    var m, matches = [], text = _getText(node);
     var replaceFn = _genReplacer(replacementNode);
 
     if (!text) { return; }
 
     if (regex.global) {
       while (m = regex.exec(text)) {
-        if (!m[0]) throw 'findAndReplaceDOMText cannot handle zero-length matches';
-        matches.push([regex.lastIndex - m[0].length, regex.lastIndex, m]);
+        matches.push(_getMatchIndexes(m, captureGroup));
       }
     } else {
       m = text.match(regex);
-      index = text.indexOf(m[0]);
-      if (!m[0]) throw 'findAndReplaceDOMText cannot handle zero-length matches';
-      matches.push([index, index + m[0].length, m]);
+      matches.push(_getMatchIndexes(m, captureGroup));
     }
 
     if (matches.length) {
       _stepThroughMatches(node, matches, replaceFn);
     }
-
   }
+
+  /**
+   * Gets the start and end indexes of a match
+   */
+  function _getMatchIndexes(m, captureGroup) {
+
+    captureGroup = captureGroup || 0;
+ 
+    if (!m[0]) throw 'findAndReplaceDOMText cannot handle zero-length matches';
+ 
+    var index = m.index;
+
+    if (captureGroup > 0) {
+      var cg = m[captureGroup];
+      if (!cg) throw 'Invalid capture group';
+      index += m[0].indexOf(cg);
+      m[0] = cg;
+    } 
+
+    return [ index, index + m[0].length, [ m[0] ] ];
+  };
 
   /**
    * Gets aggregate text of a node without resorting
