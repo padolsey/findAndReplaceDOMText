@@ -1,5 +1,5 @@
 /**
- * findAndReplaceDOMText v 0.11
+ * findAndReplaceDOMText v 0.2
  * @author James Padolsey http://james.padolsey.com
  * @license http://unlicense.org/UNLICENSE
  *
