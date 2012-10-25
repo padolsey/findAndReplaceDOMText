@@ -75,4 +75,4 @@ findAndReplaceDOMText(/foo/g, myElement, span);
 
  * 0.1: Initial commit + Fix for IE's broken HTML5 cloneNode ([pull request](https://github.com/padolsey/findAndReplaceDOMText/pull/3))
  * 0.11: Minor fix: Make sure replacement node function is called in order of matches (see [issue #4](https://github.com/padolsey/findAndReplaceDOMText/issues/4))
- * 0.2: Fix case where regular expression contains word bounderies and add support for specifying a capture group to replace as the fourth argument to `findAndReplaceDOMText()` (see [issue #4](https://github.com/padolsey/findAndReplaceDOMText/issues/5))
+ * 0.2: Fix case where regular expression contains word bounderies and add support for specifying a capture group to replace as the fourth argument to `findAndReplaceDOMText()` (see [issue #5](https://github.com/padolsey/findAndReplaceDOMText/issues/5))
