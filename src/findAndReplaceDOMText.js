@@ -226,7 +226,7 @@ window.findAndReplaceDOMText = (function() {
         }
 
         // Create the replacement node:
-        var el = makeReplacementNode(range.match[0], matchIndex);
+        var el = makeReplacementNode(range.match[0], matchIndex, range.match[0]);
         node.parentNode.insertBefore(el, node);
         if (range.endNodeIndex < node.length) {
           // Add `after` text node (after the match)
@@ -245,15 +245,15 @@ window.findAndReplaceDOMText = (function() {
         // Replace startNode -> [innerNodes...] -> endNode (in that order)
         var before = document.createTextNode(startNode.data.substring(0, range.startNodeIndex));
         var after = document.createTextNode(endNode.data.substring(range.endNodeIndex));
-        var elA = makeReplacementNode(startNode.data.substring(range.startNodeIndex), matchIndex);
+        var elA = makeReplacementNode(startNode.data.substring(range.startNodeIndex), matchIndex, range.match[0]);
         var innerEls = [];
         for (var i = 0, l = range.innerNodes.length; i < l; ++i) {
           var innerNode = range.innerNodes[i];
-          var innerEl = makeReplacementNode(innerNode.data, matchIndex);
+          var innerEl = makeReplacementNode(innerNode.data, matchIndex, range.match[0]);
           innerNode.parentNode.replaceChild(innerEl, innerNode);
           innerEls.push(innerEl);
         }
-        var elB = makeReplacementNode(endNode.data.substring(0, range.endNodeIndex), matchIndex);
+        var elB = makeReplacementNode(endNode.data.substring(0, range.endNodeIndex), matchIndex, range.match[0]);
         startNode.parentNode.insertBefore(before, startNode);
         startNode.parentNode.insertBefore(elA, startNode);
         startNode.parentNode.removeChild(startNode);
