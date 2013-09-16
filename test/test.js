@@ -139,3 +139,25 @@ test('Word boundaries', function() {
 	findAndReplaceDOMText(/\bat\b/g, d, 'x');
 	htmlEqual(d.innerHTML, 'a go matching <x>at</x> test wordat <x>at</x>');
 });
+
+test('Element filtering', function() {
+
+	var html = 'foo <style>foo{}</style> foo <script>foo;</script>';
+	var d = document.createElement('div');
+
+	d.innerHTML = html;
+
+	findAndReplaceDOMText(/foo/g, d, 'span', null, function(el) {
+		return !/^(?:script|style)$/i.test(el.nodeName);
+	});
+	htmlEqual(d.innerHTML, '<span>foo</span> <style>foo{}</style> <span>foo</span> <script>foo;</script>');
+
+	d.innerHTML = html;
+	
+	findAndReplaceDOMText(/foo/g, d, 'span', null, function(el) {
+		return 'script' !== el.nodeName.toLowerCase();
+	});
+	// (Only script tag blocked:)
+	htmlEqual(d.innerHTML, '<span>foo</span> <style><span>foo</span>{}</style> <span>foo</span> <script>foo;</script>');
+
+});
