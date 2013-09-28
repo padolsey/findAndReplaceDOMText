@@ -9,7 +9,9 @@ function htmlEqual(a, b) {
 	return equal(a, b); // IE caps <TAGs>s
 }
 
-test('Element boundery types', function() {
+module('Basics');
+
+test('Element boundary arsenal', function() {
 
 	var tests = {
 		'TEST': '<x>TEST</x>',
@@ -25,41 +27,94 @@ test('Element boundery types', function() {
 
 	for (var t in tests) {
 		d.innerHTML = t;
-		findAndReplaceDOMText(/TEST/, d, 'x');
+		findAndReplaceDOMText(d, { find: /TEST/, wrap: 'x' });
 		htmlEqual(d.innerHTML, tests[t]);
 		d.innerHTML = t;
-		findAndReplaceDOMText(/TEST/g, d, 'x');
+		var f = findAndReplaceDOMText(d, { find: /TEST/g, wrap: 'x' });
 		htmlEqual(d.innerHTML, tests[t]);
-		findAndReplaceDOMText.revert();
+		f.revert();
 		htmlEqual(d.innerHTML, t);
 	}
 
 });
 
-test('Match lengths', function() {
+module('Finding');
+
+test('String match', function() {
+
+	var text = 'this is a ??te<i>st</i>';
+	var d = document.createElement('div');
+
+	d.innerHTML = text;
+	findAndReplaceDOMText(d, { find: '??test', wrap: 'x' });
+	htmlEqual(d.innerHTML, 'this is a <x>??te</x><i><x>st</x></i>');
+
+});
+
+test('Variable length RegExp matches', function() {
 	var d = document.createElement('div');
 	for (var i = 0; i < 100; ++i) {
 		d.innerHTML = Array(i + 1).join('<em>x</em>');
-		findAndReplaceDOMText(/x+/, d, 'z');
+		findAndReplaceDOMText(d, { find: /x+/, wrap: 'z' });
 		htmlEqual(d.innerHTML, Array(i + 1).join('<em><z>x</z></em>'))
 	}
 });
 
+test('Only output specified groups', function() {
+
+	var text = 'TEST TESThello TESThello TESThello';
+	var d = document.createElement('div');
+
+	d.innerHTML = text;
+	findAndReplaceDOMText(d, { find: /(TEST)hello/, wrap: 'x', replace: '$1' });
+	htmlEqual(d.innerHTML, 'TEST <x>TEST</x> TESThello TESTHello');
+
+	d.innerHTML = text;
+	findAndReplaceDOMText(d, { find: /(TEST)hello/g, wrap: 'x', replace: '$1' });
+	htmlEqual(d.innerHTML, 'TEST <x>TEST</x> <x>TEST</x> <x>TEST</x>');
+
+	d.innerHTML = text;
+	findAndReplaceDOMText(d, { find: /\s(TEST)(hello)/g, wrap: 'x', replace: '$2' });
+	htmlEqual(d.innerHTML, 'TEST<x>hello</x><x>hello</x><x>hello</x>');
+});
+
+test('Word boundaries', function() {
+
+	var text = 'a go matching at test wordat at';
+	var d = document.createElement('div');
+
+	d.innerHTML = text;
+	findAndReplaceDOMText(d, { find: /\bat\b/, wrap: 'x' });
+	htmlEqual(d.innerHTML, 'a go matching <x>at</x> test wordat at');
+
+	d.innerHTML = text;
+	findAndReplaceDOMText(d, { find: /\bat\b/g, wrap: 'x' });
+	htmlEqual(d.innerHTML, 'a go matching <x>at</x> test wordat <x>at</x>');
+});
+
+module('Replacement (With Nodes)');
+
 test('StencilNode definition', function() {
 	var d = document.createElement('div');
 	d.innerHTML = 'test test';
-	findAndReplaceDOMText(/test/ig, d, 'div');
+	findAndReplaceDOMText(d, { find: /test/ig, wrap: 'div' });
 	htmlEqual(d.innerHTML, '<div>test</div> <div>test</div>');
 	d.innerHTML = 'test test';
-	findAndReplaceDOMText(/test/ig, d, function(fill) {
-		var e = document.createElement('x');
-		e.className = 'f';
-		e.appendChild(document.createTextNode(fill));
-		return e;
+	findAndReplaceDOMText(d, {
+		find: /test/ig,
+		replace: function(portion) {
+			var e = document.createElement('x');
+			e.className = 'f';
+			e.appendChild(document.createTextNode(portion.text));
+			return e;
+		}
 	});
 	htmlEqual(d.innerHTML, '<x class="f">test</x> <x class="f">test</x>');
 	d.innerHTML = 'test test';
-	findAndReplaceDOMText(/test/ig, d, document.createElement('z'));
+	findAndReplaceDOMText(d, {
+		find: /test/ig,
+		wrap: document.createElement('z')
+	});
 	htmlEqual(d.innerHTML, '<z>test</z> <z>test</z>');
 });
 
@@ -69,7 +124,7 @@ test('Edge case text nodes', function() {
 	var t1 = d.appendChild(document.createTextNode(''));
 	d.appendChild(document.createTextNode('x'));
 	var t2 = d.appendChild(document.createTextNode(''));
-	findAndReplaceDOMText(/x/, d, 'em');
+	findAndReplaceDOMText(d, { find: /x/, wrap: 'em' });
 	htmlEqual(d.innerHTML, '<em>x</em>');
 	equal(d.childNodes.length, 3);
 	equal(d.childNodes[0], t1);
@@ -79,15 +134,22 @@ test('Edge case text nodes', function() {
 test('Custom replacement function', function() {
 	var d = document.createElement('div');
 	d.innerHTML = 'aaaaa';
-	findAndReplaceDOMText(/a/g, d, function(fill) {
-		return document.createTextNode('b' + fill);
+	findAndReplaceDOMText(d, {
+		find: /a/g,
+		replace: function(portion) {
+			return document.createTextNode('b' + portion.text);
+		}
 	});
 	htmlEqual(d.innerHTML, 'bababababa');
 	d.innerHTML = '1234';
-	findAndReplaceDOMText(/\d/g, d, function(fill) {
-		var e = document.createElement('u');
-		e.innerHTML = fill + '_';
-		return e;
+	findAndReplaceDOMText(d, {
+		find: /\d/g,
+		replace: function(portion, match) {
+			var e = document.createElement('u');
+			e.innerHTML = portion.text + '_';
+			equal(portion.index, 0);
+			return e;
+		}
 	});
 	htmlEqual(d.innerHTML, '<u>1_</u><u>2_</u><u>3_</u><u>4_</u>');
 });
@@ -96,49 +158,86 @@ test('Custom replacement function - correct ordering', function() {
 	var d = document.createElement('div');
 	var nCalled = 0;
 	d.innerHTML = 'test<b>ing</b>123';
-	findAndReplaceDOMText(/testing[0-9]+/g, d, function(fill) {
-		switch (nCalled++) {
-			case 0: equal(fill, 'test'); break;
-			case 1: equal(fill, 'ing'); break;
-			case 2: equal(fill, '123'); break;
-			default: ok(false, 'Not expecting further matches');
+	findAndReplaceDOMText(d, {
+		find: /testing[0-9]+/g,
+		replace: function(portion) {
+			switch (nCalled++) {
+				case 0: equal(portion.text, 'test'); break;
+				case 1: equal(portion.text, 'ing'); break;
+				case 2: equal(portion.text, '123'); break;
+				default: ok(false, 'Not expecting further matches');
+			}
+			return document.createTextNode(portion.text);
 		}
-		return document.createTextNode(fill);
 	});
 	equal(nCalled, 3);
 });
 
-test('Capture groups', function() {
+module('Replacement (with text)');
 
-	var text = 'TEST TESThello TESThello TESThello';
+test('101', function() {
 	var d = document.createElement('div');
-
-	d.innerHTML = text;
-	findAndReplaceDOMText(/(TEST)hello/, d, 'x', 1);
-	htmlEqual(d.innerHTML, 'TEST <x>TEST</x>hello TESThello TESTHello');
-
-	d.innerHTML = text;
-	findAndReplaceDOMText(/(TEST)hello/g, d, 'x', 1);
-	htmlEqual(d.innerHTML, 'TEST <x>TEST</x>hello <x>TEST</x>hello <x>TEST</x>hello');
-
-	d.innerHTML = text;
-	findAndReplaceDOMText(/\s(TEST)(hello)/g, d, 'x', 2);
-	htmlEqual(d.innerHTML, 'TEST TEST<x>hello</x> TEST<x>hello</x> TEST<x>hello</x>');
+	d.innerHTML = '111 foo 222 foo';
+	findAndReplaceDOMText(d, {
+		find: 'foo',
+		replace: 'bar'
+	});
+	htmlEqual(d.innerHTML, '111 bar 222 bar');
 });
 
-test('Word boundaries', function() {
-
-	var text = 'a go matching at test wordat at';
+test('With regex plus capture group', function() {
 	var d = document.createElement('div');
-
-	d.innerHTML = text;
-	findAndReplaceDOMText(/\bat\b/, d, 'x');
-	htmlEqual(d.innerHTML, 'a go matching <x>at</x> test wordat at');
-
-	d.innerHTML = text;
-	findAndReplaceDOMText(/\bat\b/g, d, 'x');
-	htmlEqual(d.innerHTML, 'a go matching <x>at</x> test wordat <x>at</x>');
+	d.innerHTML = '111 222 333';
+	findAndReplaceDOMText(d, {
+		find: /(\d+)/g,
+		replace: 'aaa$1'
+	});
+	htmlEqual(d.innerHTML, 'AAA111 AAA222 AAA333');
 });
+
+module('Complex capture groups');
+
+test('$n', function() {
+	var d = document.createElement('div');
+	d.innerHTML = '111abc333';
+	findAndReplaceDOMText(d, {
+		find: /(a)(b)(c)/g,
+		replace: '$3$2$1'
+	});
+	htmlEqual(d.innerHTML, '111cba333');
+});
+
+test('$&/$0', function() {
+	var d = document.createElement('div');
+	d.innerHTML = '111aabbcc333';
+	findAndReplaceDOMText(d, {
+		find: /[a-z]{2}/g,
+		replace: '_$0_$&_'
+	});
+	htmlEqual(d.innerHTML, '111_aa_aa__bb_bb__cc_cc_333');
+});
+
+test('Left (`)', function() {
+	var d = document.createElement('div');
+	d.innerHTML = 'this is a test';
+	findAndReplaceDOMText(d, {
+		find: /\ba\b/,
+		replace: '[$`]'
+	});
+	htmlEqual(d.innerHTML, 'this is [this is ] test');
+});
+
+test('Right (\')', function() {
+	var d = document.createElement('div');
+	d.innerHTML = 'this is a test';
+	findAndReplaceDOMText(d, {
+		find: /\ba\b/,
+		replace: "[$']"
+	});
+	htmlEqual(d.innerHTML, 'this is [ test] test');
+});
+
+module('Filtering');
 
 test('Element filtering', function() {
 
@@ -147,17 +246,76 @@ test('Element filtering', function() {
 
 	d.innerHTML = html;
 
-	findAndReplaceDOMText(/foo/g, d, 'span', null, function(el) {
-		return !/^(?:script|style)$/i.test(el.nodeName);
+	findAndReplaceDOMText(d, {
+		find: /foo/g,
+		wrap: 'span',
+		filterElements: function(el) {
+			return !/^(?:script|style)$/i.test(el.nodeName);
+		}
 	});
 	htmlEqual(d.innerHTML, '<span>foo</span> <style>foo{}</style> <span>foo</span> <script>foo;</script>');
 
 	d.innerHTML = html;
 	
-	findAndReplaceDOMText(/foo/g, d, 'span', null, function(el) {
-		return 'script' !== el.nodeName.toLowerCase();
+	findAndReplaceDOMText(d, {
+		find: /foo/g,
+		wrap: 'span',
+		filterElements: function(el) {
+			return 'script' !== el.nodeName.toLowerCase();
+		}
 	});
 	// (Only script tag blocked:)
 	htmlEqual(d.innerHTML, '<span>foo</span> <style><span>foo</span>{}</style> <span>foo</span> <script>foo;</script>');
+
+});
+
+module('Revert');
+
+test('Basic text', function() {
+	var d = document.createElement('div');
+	var original = d.innerHTML = 'this is a test';
+	findAndReplaceDOMText(d, {
+		find: /\ba\b/,
+		replace: "something"
+	}).revert();
+	htmlEqual(d.innerHTML, original);
+});
+
+test('Complex text', function() {
+	var d = document.createElement('div');
+	var original = d.innerHTML = 'This is a Test123';
+	findAndReplaceDOMText(d, {
+		find: /\w{2}/g,
+		replace: "$`"
+	}).revert();
+	htmlEqual(d.innerHTML, original);
+});
+
+test('Across node boundaries', function() {
+	var d = document.createElement('div');
+	var original = d.innerHTML = 'Testing 123<a>442</a>35432<b>342</b>3dg<e>4</e> Testing';
+	findAndReplaceDOMText(d, {
+		find: /\d{5}/g,
+		wrap: 'span'
+	}).revert();
+	htmlEqual(d.innerHTML, original);
+});
+
+module('Legacy');
+
+test('Deprecated argument signature', function() {
+
+	var text = 'foobar foobar <style>foobar{}</style>';
+	var d = document.createElement('div');
+
+	d.innerHTML = text;
+	findAndReplaceDOMText(/(foo)bar/g, d, function(fill) {
+		var x = document.createElement('x');
+		x.appendChild(document.createTextNode(fill));
+		return x;
+	}, 1, function(el) {
+		return el.nodeName.toLowerCase() != 'style';
+	});
+	htmlEqual(d.innerHTML, '<x>foo</x>bar <x>foo</x>bar <style>foobar{}</style>');
 
 });
