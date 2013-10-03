@@ -95,6 +95,8 @@ window.findAndReplaceDOMText = (function() {
 		return new Finder(node, options);
 	}
 
+	exposed.Finder = Finder;
+
 	/**
 	 * Finder -- encapsulates logic to find and replace.
 	 */

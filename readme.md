@@ -62,7 +62,9 @@ findAndReplaceDOMText(
   options  // (Object) Explained below
 );
 ```
-### API: Options
+### API
+
+#### Options
 
 The `options` object includes:
 
@@ -112,6 +114,19 @@ findAndReplaceDOMText(document.getElementById('container'), {
   Explaining how to write a replace <em>[[0]]</em>[[1]]
 </div>
 ```
+
+#### The instance
+
+Calling `findAndReplaceDOMText` returns an instance of an internal Finder constructor -- the API on the object is limited, at the moment, to reverting:
+
+```js
+var finder = findAndReplaceDOMText(...);
+
+// Later:
+finder.revert();
+```
+
+**Note: ** Reversion will only work if the nodes have not been tampered with after the initial replacement -- if there have been removals, movements or normalisations then the reversion is not guarenteed to work. In this case it's best to retain your own clone of the target node(s) in order to run your own reversion.
 
 ### Changelog
 
