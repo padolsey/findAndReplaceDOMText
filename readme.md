@@ -68,7 +68,7 @@ findAndReplaceDOMText(
 
 The `options` object includes:
 
- * **find** (`RegExp | String`): Something to search for.
+ * **find** (`RegExp | String`): Something to search for. A string will perform a global search by default (looking for all matches), but a RegExp will only do so if you include the global (`/.../g`) flag.
  * **replace** *optional* (`String | Function`): A String of text to replace matches with, or a Function which should return replacement Node or String. If you use a string, it can contain various tokens:
   * `$n` to represent the *n*th captured group of a regular expression (i.e. `$1`, `$2`, ...)
   * `$0` or `$&` to represent the entire match
