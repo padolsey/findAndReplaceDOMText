@@ -130,6 +130,7 @@ finder.revert();
 
 ### Changelog
 
+ * 0.4.1 (11 Mar 2014): Fix portionMode:first phantom nodes (see [issue #19](https://github.com/padolsey/findAndReplaceDOMText/issues/19))
  * 0.4.0 (6 Oct 2013): Major API overhaul, including a new arg signature (`findAndReplaceDOMText(node, options)`, plus the ability to replace a match with text or wrap it with a DOM Node.
  * 0.3.0: Switch to semver, add node-filtering feature (as requested in [Issue #11](https://github.com/padolsey/findAndReplaceDOMText/issues/11)
  * 0.2: Fix case where regular expression contains word bounderies and add support for specifying a capture group to replace as the fourth argument to `findAndReplaceDOMText()` (see [issue #5](https://github.com/padolsey/findAndReplaceDOMText/issues/5))

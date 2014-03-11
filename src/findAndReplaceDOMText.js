@@ -1,5 +1,5 @@
 /**
- * findAndReplaceDOMText v 0.4.0
+ * findAndReplaceDOMText v 0.4.1
  * @author James Padolsey http://james.padolsey.com
  * @license http://unlicense.org/UNLICENSE
  *
@@ -388,6 +388,10 @@ window.findAndReplaceDOMText = (function() {
 					replacement, portion, match, matchIndex
 				)
 			);
+
+			if (!replacement.data) {
+				return replacement;
+			}
 
 			if (!el) {
 				return replacement;

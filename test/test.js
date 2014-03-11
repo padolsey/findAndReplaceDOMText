@@ -319,3 +319,27 @@ test('Deprecated argument signature', function() {
 	htmlEqual(d.innerHTML, '<x>foo</x>bar <x>foo</x>bar <style>foobar{}</style>');
 
 });
+
+module('portionMode');
+
+test('portionMode:first', function() {
+	var d = document.createElement('div');
+	d.innerHTML = 'Testing 123 HE<em>LLO there</em>';
+	findAndReplaceDOMText(d, {
+		find: /hello/i,
+		wrap: 'span',
+		portionMode: 'first'
+	});
+	htmlEqual(d.innerHTML, 'Testing 123 <span>HELLO</span><em> there</em>');
+});
+
+test('portionMode:retain', function() {
+	var d = document.createElement('div');
+	d.innerHTML = 'Testing 123 HE<em>LLO there</em>';
+	findAndReplaceDOMText(d, {
+		find: /hello/i,
+		wrap: 'span',
+		portionMode: 'retain'
+	});
+	htmlEqual(d.innerHTML, 'Testing 123 <span>HE</span><em><span>LLO</span> there</em>');
+});
