@@ -218,7 +218,8 @@ window.findAndReplaceDOMText = (function() {
 				atIndex = 0, // i.e. nodeAtIndex
 				matchIndex = 0,
 				portionIndex = 0,
-				doAvoidNode;
+				doAvoidNode,
+				nodeStack = [node];
 
 			out: while (true) {
 
@@ -292,7 +293,12 @@ window.findAndReplaceDOMText = (function() {
 					(curNode.firstChild || curNode.nextSibling)
 				) {
 					// Move down or forward:
-					curNode = curNode.firstChild || curNode.nextSibling;
+					if (curNode.firstChild) {
+						nodeStack.push(curNode);
+						curNode = curNode.firstChild;
+					} else {
+						curNode = curNode.nextSibling;
+					}
 					continue;
 				}
 
@@ -301,8 +307,8 @@ window.findAndReplaceDOMText = (function() {
 					if (curNode.nextSibling) {
 						curNode = curNode.nextSibling;
 						break;
-					} else if (curNode.parentNode !== node) {
-						curNode = curNode.parentNode;
+					} else if ( (curNode = nodeStack.pop()) !== node) {
+						;	// do nothing...
 					} else {
 						break out;
 					}
