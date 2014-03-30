@@ -1,5 +1,5 @@
 /**
- * findAndReplaceDOMText v 0.4.1
+ * findAndReplaceDOMText v 0.4.2
  * @author James Padolsey http://james.padolsey.com
  * @license http://unlicense.org/UNLICENSE
  *
@@ -307,9 +307,9 @@ window.findAndReplaceDOMText = (function() {
 					if (curNode.nextSibling) {
 						curNode = curNode.nextSibling;
 						break;
-					} else if ( (curNode = nodeStack.pop()) !== node) {
-						;	// do nothing...
-					} else {
+					}
+					curNode = nodeStack.pop();
+					if (curNode === node) {
 						break out;
 					}
 				}
