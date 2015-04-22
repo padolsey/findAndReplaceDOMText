@@ -80,16 +80,73 @@ test('Only output specified groups', function() {
 
 test('Word boundaries', function() {
 
-	var text = 'a go matching at test wordat at';
+	var text = 'a go matching at test wordat at <p>AAA</p><p>BBB</p>';
 	var d = document.createElement('div');
 
 	d.innerHTML = text;
 	findAndReplaceDOMText(d, { find: /\bat\b/, wrap: 'x' });
-	htmlEqual(d.innerHTML, 'a go matching <x>at</x> test wordat at');
+	htmlEqual(d.innerHTML, 'a go matching <x>at</x> test wordat at <p>AAA</p><p>BBB</p>');
 
 	d.innerHTML = text;
 	findAndReplaceDOMText(d, { find: /\bat\b/g, wrap: 'x' });
-	htmlEqual(d.innerHTML, 'a go matching <x>at</x> test wordat <x>at</x>');
+	htmlEqual(d.innerHTML, 'a go matching <x>at</x> test wordat <x>at</x> <p>AAA</p><p>BBB</p>');
+
+	d.innerHTML = text;
+	findAndReplaceDOMText(d, {
+		find: /\bAAA\b/,
+		wrap: 'x',
+		forceContext: function(el) {
+			return el.nodeName.toLowerCase() === 'p';
+		}
+	});
+	htmlEqual(d.innerHTML, 'a go matching at test wordat at <p><x>AAA</x></p><p>BBB</p>')
+});
+
+test('Explicit context configuration', function() {
+
+	var d = document.createElement('div');
+
+	// By default all elements have fluid inline boundaries / no forced contexts
+	d.innerHTML = '<v>Foo<v>Bar</v></v>';
+	findAndReplaceDOMText(d, { find: /FooBar/, wrap: 'x' });
+	htmlEqual(d.innerHTML, '<v><x>Foo</x><v><x>Bar</x></v></v>');
+
+	// Explicit true context
+	d.innerHTML = '<v>Foo<v>Bar</v></v>';
+	findAndReplaceDOMText(d, { find: /FooBar/, wrap: 'x', forceContext: true });
+	htmlEqual(d.innerHTML, '<v>Foo<v>Bar</v></v>');
+
+	// Explicit false context
+	d.innerHTML = '<v>Foo<v>Bar</v></v>';
+	findAndReplaceDOMText(d, { find: /FooBar/, wrap: 'x', forceContext: false });
+	htmlEqual(d.innerHTML, '<v><x>Foo</x><v><x>Bar</x></v></v>');
+
+	// <a> is forced context
+	// <b> is not
+	var forcedAContext = function (el) {
+		return el.nodeName.toLowerCase() == 'a';
+	};
+
+	d.innerHTML = '<a>Foo<b>BarFoo</b>Bar</a>';
+	findAndReplaceDOMText(d, { find: /FooBar/, wrap: 'x', forceContext: forcedAContext });
+	htmlEqual(d.innerHTML, '<a><x>Foo</x><b><x>Bar</x>Foo</b>Bar</a>');
+
+	d.innerHTML = '<a>Foo</a><b>Bar</b> <b>Foo</b><a>Bar</a>';
+	findAndReplaceDOMText(d, { find: /FooBar/, wrap: 'x', forceContext: forcedAContext });
+	htmlEqual(d.innerHTML, '<a>Foo</a><b>Bar</b> <b>Foo</b><a>Bar</a>');
+
+});
+
+test('BLOCK_LEVEL_MATCH context fn', function() {
+
+	var d = document.createElement('div');
+
+	d.innerHTML = '<p>Some</p>Thing<em>Some<span>Thing</span></em><div>Some</div>Thing';
+	findAndReplaceDOMText(d, {
+		find: /something/i, wrap: 'x', forceContext: findAndReplaceDOMText.BLOCK_LEVEL_MATCH
+	});
+	htmlEqual(d.innerHTML, '<p>Some</p>Thing<em><x>Some</x><span><x>Thing</x></span></em><div>Some</div>Thing');
+
 });
 
 module('Replacement (With Nodes)');
