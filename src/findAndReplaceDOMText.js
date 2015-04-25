@@ -103,7 +103,7 @@ window.findAndReplaceDOMText = (function() {
 		h4:1, h5:1, h6:1, header:1, hgroup:1, hr:1, main:1, nav:1, noscript:1, ol:1,
 		output:1, p:1, pre:1, section:1, ul:1,
 		// Other misc. elements that are not part of continuous inline prose:
-		br:1, li: 1, summary: 1, dt:1, details:1,
+		br:1, li: 1, summary: 1, dt:1, details:1, rp:1, rt:1, rtc:1,
 		// Media / Source elements:
 		script:1, style:1, img:1, video:1, audio:1, canvas:1, svg:1, map:1, object:1,
 		// Input elements
