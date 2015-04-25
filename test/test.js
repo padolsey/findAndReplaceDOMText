@@ -163,6 +163,24 @@ test('NON_INLINE_PROSE context fn', function() {
 
 	});
 
+	// Ensure regular inline prose elements allow bleeding matches:
+	d.innerHTML = '\
+		foo<small>ba<i>r</i></small>\
+		<em>fooba</em>r\
+		foo<strong>ba</strong>r\
+		foo<sup>bar</sup>\
+		foo<acronym>bar</acronym>\
+		<abbr>fo</abbr>ob<u>a<b>r</b></u>\
+	';
+	findAndReplaceDOMText(d, {
+		find: /foobar/gi,
+		wrap: 'match',
+		forceContext: findAndReplaceDOMText.NON_INLINE_PROSE
+	});
+	// (16 match portions in total)
+	equal(d.innerHTML.match(/<match>/g).length, 16);
+
+
 });
 
 module('Replacement (With Nodes)');

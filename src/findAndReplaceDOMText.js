@@ -98,12 +98,18 @@ window.findAndReplaceDOMText = (function() {
 
 	exposed.NON_PROSE_ELEMENTS = {
 		// Block Elements
-		address:1, article:1, aside:1, audio:1, blockquote:1, canvas:1, dd:1, div:1,
+		address:1, article:1, aside:1, blockquote:1, canvas:1, dd:1, div:1,
 		dl:1, fieldset:1, figcaption:1, figure:1, footer:1, form:1, h1:1, h2:1, h3:1,
 		h4:1, h5:1, h6:1, header:1, hgroup:1, hr:1, main:1, nav:1, noscript:1, ol:1,
-		output:1, p:1, pre:1, section:1, table:1, tfoot:1, ul:1, video:1,
+		output:1, p:1, pre:1, section:1, ul:1,
 		// Other misc. elements that are not part of continuous inline prose:
-		img:1, br:1, svg:1, script:1, style:1, input:1, textarea:1, button:1, li: 1
+		br:1, li: 1, summary: 1, dt:1, details:1, noscript:1,
+		// Media / Source elements:
+		script:1, style:1, img:1, video:1, audio:1, canvas:1, svg:1, map:1, object:1,
+		// Input elements
+		input:1, textarea:1, select:1, option:1, optgroup: 1, button:1,
+		// Table related elements:
+		table:1, tbody:1, thead:1, th:1, tr:1, td:1, caption:1, col:1, tfoot:1, colgroup:1
 	};
 	exposed.NON_INLINE_PROSE = function(el) {
 		return hasOwn.call(exposed.NON_PROSE_ELEMENTS, el.nodeName.toLowerCase());
