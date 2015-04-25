@@ -74,7 +74,7 @@ var inputHandler = function() {
 					el.innerHTML = portion.text;
 					return el;
 				},
-				forceContext: findAndReplaceDOMText.BLOCK_LEVEL_MATCH
+				forceContext: findAndReplaceDOMText.NON_INLINE_PROSE
 			});
 		} catch(e) {
 			warning.innerHTML = 'Error: ' + e;

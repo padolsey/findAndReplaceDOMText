@@ -137,15 +137,31 @@ test('Explicit context configuration', function() {
 
 });
 
-test('BLOCK_LEVEL_MATCH context fn', function() {
+test('NON_INLINE_PROSE context fn', function() {
 
 	var d = document.createElement('div');
 
 	d.innerHTML = '<p>Some</p>Thing<em>Some<span>Thing</span></em><div>Some</div>Thing';
 	findAndReplaceDOMText(d, {
-		find: /something/i, wrap: 'x', forceContext: findAndReplaceDOMText.BLOCK_LEVEL_MATCH
+		find: /something/i, wrap: 'x', forceContext: findAndReplaceDOMText.NON_INLINE_PROSE
 	});
 	htmlEqual(d.innerHTML, '<p>Some</p>Thing<em><x>Some</x><span><x>Thing</x></span></em><div>Some</div>Thing');
+
+	[
+		'<input type="text">',
+		'<img>',
+		'<script></script>',
+		'<style></style>',
+		'<svg></svg>'
+	].forEach(function(el) {
+
+		d.innerHTML = 'foo' + el + 'bar';
+		findAndReplaceDOMText(d, {
+			find: /foobar/i, wrap: 'x', forceContext: findAndReplaceDOMText.NON_INLINE_PROSE
+		});
+		htmlEqual(d.innerHTML, 'foo' + el + 'bar');
+
+	});
 
 });
 
