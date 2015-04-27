@@ -434,3 +434,49 @@ test('portionMode:retain', function() {
 	});
 	htmlEqual(d.innerHTML, 'Testing 123 <span>HE</span><em><span>LLO</span> there</em>');
 });
+
+module('Presets');
+
+test('prose', function() {
+
+	var d = document.createElement('div');
+
+	d.innerHTML = '\
+		123\
+		<h1>123</h1>\
+		<script>\
+			123;\
+		</script>\
+		<p>1</p><p>2</p><p>3</p>\
+		<div>\
+			1<em>23</em>\
+			123\
+		</div>\
+		<div>\
+			<style>123</style>\
+		</div>\
+	';
+
+	findAndReplaceDOMText(d, {
+		find: /123/g,
+		replace: '999',
+		preset: 'prose'
+	});
+
+	htmlEqual(d.innerHTML, '\
+		999\
+		<h1>999</h1>\
+		<script>\
+			123;\
+		</script>\
+		<p>1</p><p>2</p><p>3</p>\
+		<div>\
+			9<em>99</em>\
+			999\
+		</div>\
+		<div>\
+			<style>123</style>\
+		</div>\
+	');
+
+});

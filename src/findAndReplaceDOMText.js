@@ -97,6 +97,18 @@ window.findAndReplaceDOMText = (function() {
 	}
 
 	exposed.NON_PROSE_ELEMENTS = {
+		br:1, hr:1,
+		// Media / Source elements:
+		script:1, style:1, img:1, video:1, audio:1, canvas:1, svg:1, map:1, object:1,
+		// Input elements
+		input:1, textarea:1, select:1, option:1, optgroup: 1, button:1
+	};
+
+	exposed.NON_CONTIGUOUS_PROSE_ELEMENTS = {
+
+		// Elements that will not contain prose or block elements where we don't
+		// want prose to be matches across element borders:
+
 		// Block Elements
 		address:1, article:1, aside:1, blockquote:1, canvas:1, dd:1, div:1,
 		dl:1, fieldset:1, figcaption:1, figure:1, footer:1, form:1, h1:1, h2:1, h3:1,
@@ -110,9 +122,21 @@ window.findAndReplaceDOMText = (function() {
 		input:1, textarea:1, select:1, option:1, optgroup: 1, button:1,
 		// Table related elements:
 		table:1, tbody:1, thead:1, th:1, tr:1, td:1, caption:1, col:1, tfoot:1, colgroup:1
+
 	};
+
 	exposed.NON_INLINE_PROSE = function(el) {
-		return hasOwn.call(exposed.NON_PROSE_ELEMENTS, el.nodeName.toLowerCase());
+		return hasOwn.call(exposed.NON_CONTIGUOUS_PROSE_ELEMENTS, el.nodeName.toLowerCase());
+	};
+
+	// Presets accessed via `options.preset` when calling findAndReplaceDOMText():
+	exposed.PRESETS = {
+		prose: {
+			forceContext: exposed.NON_INLINE_PROSE,
+			filterElements: function(el) {
+				return !hasOwn.call(exposed.NON_PROSE_ELEMENTS, el.nodeName.toLowerCase());
+			}
+		}
 	};
 
 	exposed.Finder = Finder;
@@ -122,7 +146,17 @@ window.findAndReplaceDOMText = (function() {
 	 */
 	function Finder(node, options) {
 
+		var preset = options.preset && exposed.PRESETS[options.preset];
+
 		options.portionMode = options.portionMode || PORTION_MODE_RETAIN;
+
+		if (preset) {
+			for (var i in preset) {
+				if (hasOwn.call(preset, i) && !hasOwn.call(options, i)) {
+					options[i] = preset[i];
+				}
+			}
+		}
 
 		this.node = node;
 		this.options = options;
