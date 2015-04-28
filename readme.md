@@ -203,6 +203,7 @@ exposed.PRESETS = {
 
 ### Changelog
 
+ * 0.4.3 (28 Apr 2015): Add `preset:prose` and `forceContext` features. [See #29](https://github.com/padolsey/findAndReplaceDOMText/issues/29).
  * 0.4.2 (30 Mar 2014): Fix IE to avoid incorrectly-closed-tags issue ([see #20](https://github.com/padolsey/findAndReplaceDOMText/issues/20)). Thanks to [shauryamal](https://github.com/shauryamal)!
  * 0.4.1 (11 Mar 2014): Fix portionMode:first phantom nodes (see [issue #19](https://github.com/padolsey/findAndReplaceDOMText/issues/19))
  * 0.4.0 (6 Oct 2013): Major API overhaul, including a new arg signature (`findAndReplaceDOMText(node, options)`, plus the ability to replace a match with text or wrap it with a DOM Node.
