@@ -52,6 +52,10 @@ This would result in:
 
 The `EM` element has been added twice, to cover both portions of the match.
 
+## Installation
+
+Grab the latest [findAndReplaceDOMText.js](https://github.com/padolsey/findAndReplaceDOMText/blob/master/src/findAndReplaceDOMText.js) (or `npm install findandreplacedomtext`) and include it as a `<script>` on your page.
+
 ## API / Usage
 
 `findAndReplaceDOMText` has the following argument signature:
