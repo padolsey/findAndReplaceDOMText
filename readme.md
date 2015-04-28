@@ -67,24 +67,6 @@ findAndReplaceDOMText(
 );
 ```
 
-### `preset:prose`
-
-The most common usage of `findAndReplaceDOMText` is to replace text found in regular prose, not all DOM nodes. To make this easier there is a preset that you can use to instruct it to:
-
- * Ignore non-textual elements (E.g. `<script>`, `<svg>`, `<optgroup>`, `<textarea>`, etc.)
- * Force [bordered contexts](#user-content-contexts) on block-elements like `<p>` and `<div>` so that matches cannot cross element borders.
- * Note: matches will still be able to cross textual-inline element borders (`<em>`, `<span>`, etc.)
-
-To enable this preset:
-
-```js
-findAndReplaceDOMText(element, {
-  preset: 'prose',
-  find: 'something',
-  replace: 'something else'
-})
-```
-
 ### API
 
 #### Options
@@ -101,6 +83,25 @@ The `options` object includes:
  * **portionMode** *optional* (`String`, one of `"retain"` or `"first"`): Indicates whether to re-use existing node boundaries when replacing a match with text (i.e. the default, `"retain"`), or whether to instead place the entire replacement in the first-found match portion's node. *Most of the time you'll want the default*.
  * **filterElements** *optional* (`Function`): A function to be called on every element encountered by `findAndReplaceDOMText`. If the function returns false the element will be altogether ignored.
  * **forceContext** *optional* (`Function | Boolean`): A boolean or a boolean-returning function that'll be called on every element to determine if it should be considered as its own matching context. See below under [*Contexts*](#user-content-contexts) for more info.
+ * **preset** *optional* (`String`): Currently there's only one preset: `prose`. See below.
+
+#### `preset:prose`
+
+The most common usage of `findAndReplaceDOMText` is to replace text found in regular prose, not all DOM nodes. To make this easier there is a preset that you can use to instruct it to:
+
+ * Ignore non-textual elements (E.g. `<script>`, `<svg>`, `<optgroup>`, `<textarea>`, etc.)
+ * Force [bordered contexts](#user-content-contexts) on block-elements like `<p>` and `<div>` so that matches cannot cross element borders.
+ * Note: matches will still be able to cross textual-inline element borders (`<em>`, `<span>`, etc.)
+
+To enable this preset:
+
+```js
+findAndReplaceDOMText(element, {
+  preset: 'prose',
+  find: 'something',
+  replace: 'something else'
+})
+```
 
 #### What is a portion?
 
