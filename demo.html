@@ -73,7 +73,8 @@ var inputHandler = function() {
 					el.style.backgroundColor = colors[match.index % colors.length];
 					el.innerHTML = portion.text;
 					return el;
-				}
+				},
+				forceContext: findAndReplaceDOMText.NON_INLINE_PROSE
 			});
 		} catch(e) {
 			warning.innerHTML = 'Error: ' + e;

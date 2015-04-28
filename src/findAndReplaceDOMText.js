@@ -1,5 +1,5 @@
 /**
- * findAndReplaceDOMText v 0.4.2
+ * findAndReplaceDOMText v 0.4.3
  * @author James Padolsey http://james.padolsey.com
  * @license http://unlicense.org/UNLICENSE
  *
@@ -14,6 +14,7 @@ window.findAndReplaceDOMText = (function() {
 
 	var doc = document;
 	var toString = {}.toString;
+	var hasOwn = {}.hasOwnProperty;
 
 	function isArray(a) {
 		return toString.call(a) == '[object Array]';
@@ -95,6 +96,49 @@ window.findAndReplaceDOMText = (function() {
 		return new Finder(node, options);
 	}
 
+	exposed.NON_PROSE_ELEMENTS = {
+		br:1, hr:1,
+		// Media / Source elements:
+		script:1, style:1, img:1, video:1, audio:1, canvas:1, svg:1, map:1, object:1,
+		// Input elements
+		input:1, textarea:1, select:1, option:1, optgroup: 1, button:1
+	};
+
+	exposed.NON_CONTIGUOUS_PROSE_ELEMENTS = {
+
+		// Elements that will not contain prose or block elements where we don't
+		// want prose to be matches across element borders:
+
+		// Block Elements
+		address:1, article:1, aside:1, blockquote:1, canvas:1, dd:1, div:1,
+		dl:1, fieldset:1, figcaption:1, figure:1, footer:1, form:1, h1:1, h2:1, h3:1,
+		h4:1, h5:1, h6:1, header:1, hgroup:1, hr:1, main:1, nav:1, noscript:1, ol:1,
+		output:1, p:1, pre:1, section:1, ul:1,
+		// Other misc. elements that are not part of continuous inline prose:
+		br:1, li: 1, summary: 1, dt:1, details:1, rp:1, rt:1, rtc:1,
+		// Media / Source elements:
+		script:1, style:1, img:1, video:1, audio:1, canvas:1, svg:1, map:1, object:1,
+		// Input elements
+		input:1, textarea:1, select:1, option:1, optgroup: 1, button:1,
+		// Table related elements:
+		table:1, tbody:1, thead:1, th:1, tr:1, td:1, caption:1, col:1, tfoot:1, colgroup:1
+
+	};
+
+	exposed.NON_INLINE_PROSE = function(el) {
+		return hasOwn.call(exposed.NON_CONTIGUOUS_PROSE_ELEMENTS, el.nodeName.toLowerCase());
+	};
+
+	// Presets accessed via `options.preset` when calling findAndReplaceDOMText():
+	exposed.PRESETS = {
+		prose: {
+			forceContext: exposed.NON_INLINE_PROSE,
+			filterElements: function(el) {
+				return !hasOwn.call(exposed.NON_PROSE_ELEMENTS, el.nodeName.toLowerCase());
+			}
+		}
+	};
+
 	exposed.Finder = Finder;
 
 	/**
@@ -102,7 +146,17 @@ window.findAndReplaceDOMText = (function() {
 	 */
 	function Finder(node, options) {
 
+		var preset = options.preset && exposed.PRESETS[options.preset];
+
 		options.portionMode = options.portionMode || PORTION_MODE_RETAIN;
+
+		if (preset) {
+			for (var i in preset) {
+				if (hasOwn.call(preset, i) && !hasOwn.call(options, i)) {
+					options[i] = preset[i];
+				}
+			}
+		}
 
 		this.node = node;
 		this.options = options;
@@ -129,19 +183,38 @@ window.findAndReplaceDOMText = (function() {
 
 			var match;
 			var matchIndex = 0;
+			var offset = 0;
 			var regex = this.options.find;
-			var text = this.getAggregateText();
+			var textAggregation = this.getAggregateText();
 			var matches = [];
+			var self = this;
 
 			regex = typeof regex === 'string' ? RegExp(escapeRegExp(regex), 'g') : regex;
 
-			if (regex.global) {
-				while (match = regex.exec(text)) {
-					matches.push(this.prepMatch(match, matchIndex++));
-				}
-			} else {
-				if (match = text.match(regex)) {
-					matches.push(this.prepMatch(match, 0));
+			matchAggregation(textAggregation);
+
+			function matchAggregation(textAggregation) {
+				for (var i = 0, l = textAggregation.length; i < l; ++i) {
+
+					var text = textAggregation[i];
+
+					if (typeof text !== 'string') {
+						// Deal with nested contexts: (recursive)
+						matchAggregation(text);
+						continue;
+					}
+
+					if (regex.global) {
+						while (match = regex.exec(text)) {
+							matches.push(self.prepMatch(match, matchIndex++, offset));
+						}
+					} else {
+						if (match = text.match(regex)) {
+							matches.push(self.prepMatch(match, 0, offset));
+						}
+					}
+
+					offset += text.length;
 				}
 			}
 
@@ -152,14 +225,14 @@ window.findAndReplaceDOMText = (function() {
 		/**
 		 * Prepares a single match with useful meta info:
 		 */
-		prepMatch: function(match, matchIndex) {
+		prepMatch: function(match, matchIndex, characterOffset) {
 
 			if (!match[0]) {
 				throw new Error('findAndReplaceDOMText cannot handle zero-length matches');
 			}
 	 
-			match.endIndex = match.index + match[0].length;
-			match.startIndex = match.index;
+			match.endIndex = characterOffset + match.index + match[0].length;
+			match.startIndex = characterOffset + match.index;
 			match.index = matchIndex;
 
 			return match;
@@ -171,6 +244,7 @@ window.findAndReplaceDOMText = (function() {
 		getAggregateText: function() {
 
 			var elementFilter = this.options.filterElements;
+			var forceContext = this.options.forceContext;
 
 			return getText(this.node);
 
@@ -178,26 +252,53 @@ window.findAndReplaceDOMText = (function() {
 			 * Gets aggregate text of a node without resorting
 			 * to broken innerText/textContent
 			 */
-			function getText(node) {
+			function getText(node, txt) {
 
 				if (node.nodeType === 3) {
-					return node.data;
+					return [node.data];
 				}
 
 				if (elementFilter && !elementFilter(node)) {
-					return '';
+					return [];
 				}
 
-				var txt = '';
+				var txt = [''];
+				var i = 0;
 
 				if (node = node.firstChild) do {
-					txt += getText(node);
+
+					if (node.nodeType === 3) {
+						txt[i] += node.data;
+						continue;
+					}
+
+					var innerText = getText(node);
+
+					if (
+						forceContext &&
+						node.nodeType === 1 &&
+						(forceContext === true || forceContext(node))
+					) {
+						txt[++i] = innerText;
+						txt[++i] = '';
+					} else {
+						if (typeof innerText[0] === 'string') {
+							// Bridge nested text-node data so that they're
+							// not considered their own contexts:
+							// I.e. ['some', ['thing']] -> ['something']
+							txt[i] += innerText.shift();
+						}
+						if (innerText.length) {
+							txt[++i] = innerText;
+							txt[++i] = '';
+						}
+					}
 				} while (node = node.nextSibling);
 
 				return txt;
 
 			}
-
+			
 		},
 
 		/** 

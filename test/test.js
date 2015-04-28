@@ -80,16 +80,107 @@ test('Only output specified groups', function() {
 
 test('Word boundaries', function() {
 
-	var text = 'a go matching at test wordat at';
+	var text = 'a go matching at test wordat at <p>AAA</p><p>BBB</p>';
 	var d = document.createElement('div');
 
 	d.innerHTML = text;
 	findAndReplaceDOMText(d, { find: /\bat\b/, wrap: 'x' });
-	htmlEqual(d.innerHTML, 'a go matching <x>at</x> test wordat at');
+	htmlEqual(d.innerHTML, 'a go matching <x>at</x> test wordat at <p>AAA</p><p>BBB</p>');
 
 	d.innerHTML = text;
 	findAndReplaceDOMText(d, { find: /\bat\b/g, wrap: 'x' });
-	htmlEqual(d.innerHTML, 'a go matching <x>at</x> test wordat <x>at</x>');
+	htmlEqual(d.innerHTML, 'a go matching <x>at</x> test wordat <x>at</x> <p>AAA</p><p>BBB</p>');
+
+	d.innerHTML = text;
+	findAndReplaceDOMText(d, {
+		find: /\bAAA\b/,
+		wrap: 'x',
+		forceContext: function(el) {
+			return el.nodeName.toLowerCase() === 'p';
+		}
+	});
+	htmlEqual(d.innerHTML, 'a go matching at test wordat at <p><x>AAA</x></p><p>BBB</p>')
+});
+
+test('Explicit context configuration', function() {
+
+	var d = document.createElement('div');
+
+	// By default all elements have fluid inline boundaries / no forced contexts
+	d.innerHTML = '<v>Foo<v>Bar</v></v>';
+	findAndReplaceDOMText(d, { find: /FooBar/, wrap: 'x' });
+	htmlEqual(d.innerHTML, '<v><x>Foo</x><v><x>Bar</x></v></v>');
+
+	// Explicit true context
+	d.innerHTML = '<v>Foo<v>Bar</v></v>';
+	findAndReplaceDOMText(d, { find: /FooBar/, wrap: 'x', forceContext: true });
+	htmlEqual(d.innerHTML, '<v>Foo<v>Bar</v></v>');
+
+	// Explicit false context
+	d.innerHTML = '<v>Foo<v>Bar</v></v>';
+	findAndReplaceDOMText(d, { find: /FooBar/, wrap: 'x', forceContext: false });
+	htmlEqual(d.innerHTML, '<v><x>Foo</x><v><x>Bar</x></v></v>');
+
+	// <a> is forced context
+	// <b> is not
+	var forcedAContext = function (el) {
+		return el.nodeName.toLowerCase() == 'a';
+	};
+
+	d.innerHTML = '<a>Foo<b>BarFoo</b>Bar</a>';
+	findAndReplaceDOMText(d, { find: /FooBar/, wrap: 'x', forceContext: forcedAContext });
+	htmlEqual(d.innerHTML, '<a><x>Foo</x><b><x>Bar</x>Foo</b>Bar</a>');
+
+	d.innerHTML = '<a>Foo</a><b>Bar</b> <b>Foo</b><a>Bar</a>';
+	findAndReplaceDOMText(d, { find: /FooBar/, wrap: 'x', forceContext: forcedAContext });
+	htmlEqual(d.innerHTML, '<a>Foo</a><b>Bar</b> <b>Foo</b><a>Bar</a>');
+
+});
+
+test('NON_INLINE_PROSE context fn', function() {
+
+	var d = document.createElement('div');
+
+	d.innerHTML = '<p>Some</p>Thing<em>Some<span>Thing</span></em><div>Some</div>Thing';
+	findAndReplaceDOMText(d, {
+		find: /something/i, wrap: 'x', forceContext: findAndReplaceDOMText.NON_INLINE_PROSE
+	});
+	htmlEqual(d.innerHTML, '<p>Some</p>Thing<em><x>Some</x><span><x>Thing</x></span></em><div>Some</div>Thing');
+
+	[
+		'<input type="text">',
+		'<img>',
+		'<script></script>',
+		'<style></style>',
+		'<svg></svg>'
+	].forEach(function(el) {
+
+		d.innerHTML = 'foo' + el + 'bar';
+		findAndReplaceDOMText(d, {
+			find: /foobar/i, wrap: 'x', forceContext: findAndReplaceDOMText.NON_INLINE_PROSE
+		});
+		htmlEqual(d.innerHTML, 'foo' + el + 'bar');
+
+	});
+
+	// Ensure regular inline prose elements allow bleeding matches:
+	d.innerHTML = '\
+		foo<small>ba<i>r</i></small>\
+		<em>fooba</em>r\
+		foo<strong>ba</strong>r\
+		foo<sup>bar</sup>\
+		foo<acronym>bar</acronym>\
+		<abbr>fo</abbr>ob<u>a<b>r</b></u>\
+	';
+	findAndReplaceDOMText(d, {
+		find: /foobar/gi,
+		wrap: 'match',
+		forceContext: findAndReplaceDOMText.NON_INLINE_PROSE
+	});
+	// (16 match portions in total)
+	equal(d.innerHTML.match(/<match>/g).length, 16);
+
+
 });
 
 module('Replacement (With Nodes)');
@@ -342,4 +433,50 @@ test('portionMode:retain', function() {
 		portionMode: 'retain'
 	});
 	htmlEqual(d.innerHTML, 'Testing 123 <span>HE</span><em><span>LLO</span> there</em>');
+});
+
+module('Presets');
+
+test('prose', function() {
+
+	var d = document.createElement('div');
+
+	d.innerHTML = '\
+		123\
+		<h1>123</h1>\
+		<script>\
+			123;\
+		</script>\
+		<p>1</p><p>2</p><p>3</p>\
+		<div>\
+			1<em>23</em>\
+			123\
+		</div>\
+		<div>\
+			<style>123</style>\
+		</div>\
+	';
+
+	findAndReplaceDOMText(d, {
+		find: /123/g,
+		replace: '999',
+		preset: 'prose'
+	});
+
+	htmlEqual(d.innerHTML, '\
+		999\
+		<h1>999</h1>\
+		<script>\
+			123;\
+		</script>\
+		<p>1</p><p>2</p><p>3</p>\
+		<div>\
+			9<em>99</em>\
+			999\
+		</div>\
+		<div>\
+			<style>123</style>\
+		</div>\
+	');
+
 });
