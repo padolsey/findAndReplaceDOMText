@@ -110,7 +110,7 @@ window.findAndReplaceDOMText = (function() {
 		// want prose to be matches across element borders:
 
 		// Block Elements
-		address:1, article:1, aside:1, blockquote:1, canvas:1, dd:1, div:1,
+		address:1, article:1, aside:1, blockquote:1, dd:1, div:1,
 		dl:1, fieldset:1, figcaption:1, figure:1, footer:1, form:1, h1:1, h2:1, h3:1,
 		h4:1, h5:1, h6:1, header:1, hgroup:1, hr:1, main:1, nav:1, noscript:1, ol:1,
 		output:1, p:1, pre:1, section:1, ul:1,
