@@ -7,7 +7,18 @@
  * and replaces each match (or node-separated portions of the match)
  * in the specified element.
  */
-window.findAndReplaceDOMText = (function() {
+ (function (root, factory) {
+     if (typeof module === 'object' && module.exports) {
+         // Node/CommonJS
+         module.exports = factory();
+     } else if (typeof define === 'function' && define.amd) {
+         // AMD. Register as an anonymous module.
+         define(factory);
+     } else {
+         // Browser globals
+         root.findAndReplaceDOMText = factory();
+     }
+ }(this, function factory() {
 
 	var PORTION_MODE_RETAIN = 'retain';
 	var PORTION_MODE_FIRST = 'first';
@@ -617,4 +628,4 @@ window.findAndReplaceDOMText = (function() {
 
 	return exposed;
 
-}());
+}));
