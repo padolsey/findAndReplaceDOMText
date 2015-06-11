@@ -107,6 +107,8 @@ findAndReplaceDOMText(element, {
 
 A portion or "match portion" is a part of a match that is delimited by node boundaries. Not all matches occur within a single text-node, so `findAndReplaceDOMText` has to be able to deal with cross-boundary matches (e.g. when matching `/foo/` in `"<em>f</em>oo"`).
 
+A portion object has a proprty `text` that holds the text matched in this portion.
+
 #### The `replace` Function
 
 If you pass a function to the `replace` option your function will be called on every portion of every match and is expected to return a DOM Node (a Text or Element node). Your function will be passed both the portion and the encapsulating match of that portion.
