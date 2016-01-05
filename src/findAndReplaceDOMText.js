@@ -130,7 +130,7 @@
 		// Media / Source elements:
 		script:1, style:1, img:1, video:1, audio:1, canvas:1, svg:1, map:1, object:1,
 		// Input elements
-		input:1, textarea:1, select:1, option:1, optgroup: 1, button:1,
+		input:1, textarea:1, select:1, option:1, optgroup:1, button:1,
 		// Table related elements:
 		table:1, tbody:1, thead:1, th:1, tr:1, td:1, caption:1, col:1, tfoot:1, colgroup:1
 
