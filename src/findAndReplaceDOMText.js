@@ -24,12 +24,7 @@
 	var PORTION_MODE_FIRST = 'first';
 
 	var doc = document;
-	var toString = {}.toString;
 	var hasOwn = {}.hasOwnProperty;
-
-	function isArray(a) {
-		return toString.call(a) == '[object Array]';
-	}
 
 	function escapeRegExp(s) {
 		return String(s).replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
