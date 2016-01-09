@@ -167,7 +167,7 @@
 		this.node = node;
 		this.options = options;
 
-		// ENable match-preparation method to be passed as option:
+		// Enable match-preparation method to be passed as option:
 		this.prepMatch = options.prepMatch || this.prepMatch;
 
 		this.reverts = [];
@@ -258,7 +258,7 @@
 			 * Gets aggregate text of a node without resorting
 			 * to broken innerText/textContent
 			 */
-			function getText(node, txt) {
+			function getText(node) {
 
 				if (node.nodeType === 3) {
 					return [node.data];
@@ -520,7 +520,7 @@
 			var matchStartNode = startPortion.node;
 			var matchEndNode = endPortion.node;
 
-			var preceedingTextNode;
+			var precedingTextNode;
 			var followingTextNode;
 
 			if (matchStartNode === matchEndNode) {
@@ -529,8 +529,8 @@
 
 				if (startPortion.indexInNode > 0) {
 					// Add `before` text node (before the match)
-					preceedingTextNode = doc.createTextNode(node.data.substring(0, startPortion.indexInNode));
-					node.parentNode.insertBefore(preceedingTextNode, node);
+					precedingTextNode = doc.createTextNode(node.data.substring(0, startPortion.indexInNode));
+					node.parentNode.insertBefore(precedingTextNode, node);
 				}
 
 				// Create the replacement node:
@@ -550,8 +550,8 @@
 				node.parentNode.removeChild(node);
 
 				this.reverts.push(function() {
-					if (preceedingTextNode === newNode.previousSibling) {
-						preceedingTextNode.parentNode.removeChild(preceedingTextNode);
+					if (precedingTextNode === newNode.previousSibling) {
+						precedingTextNode.parentNode.removeChild(precedingTextNode);
 					}
 					if (followingTextNode === newNode.nextSibling) {
 						followingTextNode.parentNode.removeChild(followingTextNode);
@@ -565,7 +565,7 @@
 				// Replace matchStartNode -> [innerMatchNodes...] -> matchEndNode (in that order)
 
 
-				preceedingTextNode = doc.createTextNode(
+				precedingTextNode = doc.createTextNode(
 					matchStartNode.data.substring(0, startPortion.indexInNode)
 				);
 
@@ -600,7 +600,7 @@
 					match
 				);
 
-				matchStartNode.parentNode.insertBefore(preceedingTextNode, matchStartNode);
+				matchStartNode.parentNode.insertBefore(precedingTextNode, matchStartNode);
 				matchStartNode.parentNode.insertBefore(firstNode, matchStartNode);
 				matchStartNode.parentNode.removeChild(matchStartNode);
 
@@ -609,7 +609,7 @@
 				matchEndNode.parentNode.removeChild(matchEndNode);
 
 				this.reverts.push(function() {
-					preceedingTextNode.parentNode.removeChild(preceedingTextNode);
+					precedingTextNode.parentNode.removeChild(precedingTextNode);
 					firstNode.parentNode.replaceChild(matchStartNode, firstNode);
 					followingTextNode.parentNode.removeChild(followingTextNode);
 					lastNode.parentNode.replaceChild(matchEndNode, lastNode);
