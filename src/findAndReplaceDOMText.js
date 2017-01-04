@@ -260,7 +260,7 @@
 			 */
 			function getText(node) {
 
-				if (node.nodeType === 3) {
+				if (node.nodeType === Node.TEXT_NODE) {
 					return [node.data];
 				}
 
@@ -273,7 +273,7 @@
 
 				if (node = node.firstChild) do {
 
-					if (node.nodeType === 3) {
+					if (node.nodeType === Node.TEXT_NODE) {
 						txt[i] += node.data;
 						continue;
 					}
@@ -282,7 +282,7 @@
 
 					if (
 						forceContext &&
-						node.nodeType === 1 &&
+						node.nodeType === Node.ELEMENT_NODE &&
 						(forceContext === true || forceContext(node))
 					) {
 						txt[++i] = innerText;
@@ -372,7 +372,7 @@
 
 				}
 
-				doAvoidNode = curNode.nodeType === 1 && elementFilter && !elementFilter(curNode);
+				doAvoidNode = curNode.nodeType === Node.ELEMENT_NODE && elementFilter && !elementFilter(curNode);
 
 				if (startPortion && endPortion) {
 
