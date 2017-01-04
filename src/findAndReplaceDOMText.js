@@ -330,7 +330,7 @@
 
 			out: while (true) {
 
-				if (curNode.nodeType === 3) {
+				if (curNode.nodeType === Node.TEXT_NODE) {
 
 					if (!endPortion && curNode.length + atIndex >= match.endIndex) {
 
