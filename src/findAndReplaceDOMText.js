@@ -498,7 +498,7 @@
 
 			var el = typeof wrapper == 'string' ? doc.createElement(wrapper) : wrapper;
 
- 			if (wrapperClass) {
+ 			if (wrapperClass && el !== undefined) {
 				el.className = wrapperClass;
 			}
 
