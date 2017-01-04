@@ -150,6 +150,50 @@ findAndReplaceDOMText(document.getElementById('container'), {
 </div>
 ```
 
+#### The `wrap` Option
+
+If you pass a string to the `wrap` option, every matching text segment will be wrapped in that element.  If you also specify the `wrapClass` option, the wrapping element will be assigned that class after it is created.  This is useful for attaching various styles from your css.
+
+E.g.
+
+*Input HTML*
+
+```html
+<div id="container">
+  Explaining how to wrap text in elements with and without classes assigned.
+</div>
+```
+
+*JS*
+
+```js
+findAndReplaceDOMText(document.getElementById('container'), {
+ find: 'without',
+ wrap: 'em'
+});
+findAndReplaceDOMText(document.getElementById('container'), {
+ find: 'with ',
+ wrap: 'em',
+ wrapClass: 'shiny'
+});
+```
+
+*CSS*
+
+```css
+.shiny {
+ background-color: yellow;
+}
+```
+
+*Output HTML*
+
+```html
+<div id="container">
+  Explaining how to wrap text in elements <em class="shiny">with </em>and <em>without</em> classes assigned.
+</div>
+```
+
 #### The instance
 
 Calling `findAndReplaceDOMText` returns an instance of an internal Finder constructor -- the API on the object is limited, at the moment, to reverting:
