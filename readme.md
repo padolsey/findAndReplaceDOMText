@@ -80,7 +80,7 @@ The `options` object includes:
   * <code>$`</code> to represent everything to the left of the match.
   * `$'` to represent everything to the right of the match.
  * **wrap** *optional* (`String | Node`): A string representing the node-name of an element that will be wrapped around matches (e.g. `span` or `em`). Or a Node (i.e. a stencil node) that we will clone for each match portion.
- * **wrapClass** *optional* (`String`): A string representing the class name to be assigned to the wrapping element (e.g. <span class="myClass">found text</span>).  If the wrap: option is not specified, then this option is ignored.
+ * **wrapClass** *optional* (`String`): A string representing the class name to be assigned to the wrapping element (e.g. `<span class="myClass">found text</span>`).  If the `wrap` option is not specified, then this option is ignored.
  * **portionMode** *optional* (`String`, one of `"retain"` or `"first"`): Indicates whether to re-use existing node boundaries when replacing a match with text (i.e. the default, `"retain"`), or whether to instead place the entire replacement in the first-found match portion's node. *Most of the time you'll want the default*.
  * **filterElements** *optional* (`Function`): A function to be called on every element encountered by `findAndReplaceDOMText`. If the function returns false the element will be altogether ignored.
  * **forceContext** *optional* (`Function | Boolean`): A boolean or a boolean-returning function that'll be called on every element to determine if it should be considered as its own matching context. See below under [*Contexts*](#user-content-contexts) for more info.
