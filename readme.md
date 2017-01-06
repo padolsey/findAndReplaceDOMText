@@ -80,6 +80,7 @@ The `options` object includes:
   * <code>$`</code> to represent everything to the left of the match.
   * `$'` to represent everything to the right of the match.
  * **wrap** *optional* (`String | Node`): A string representing the node-name of an element that will be wrapped around matches (e.g. `span` or `em`). Or a Node (i.e. a stencil node) that we will clone for each match portion.
+ * **wrapClass** *optional* (`String`): A string representing the class name to be assigned to the wrapping element (e.g. <span class="myClass">found text</span>).  If the wrap: option is not specified, then this option is ignored.
  * **portionMode** *optional* (`String`, one of `"retain"` or `"first"`): Indicates whether to re-use existing node boundaries when replacing a match with text (i.e. the default, `"retain"`), or whether to instead place the entire replacement in the first-found match portion's node. *Most of the time you'll want the default*.
  * **filterElements** *optional* (`Function`): A function to be called on every element encountered by `findAndReplaceDOMText`. If the function returns false the element will be altogether ignored.
  * **forceContext** *optional* (`Function | Boolean`): A boolean or a boolean-returning function that'll be called on every element to determine if it should be considered as its own matching context. See below under [*Contexts*](#user-content-contexts) for more info.
@@ -146,6 +147,50 @@ findAndReplaceDOMText(document.getElementById('container'), {
 ```html
 <div id="container">
   Explaining how to write a replace <em>[[0]]</em>[[1]]
+</div>
+```
+
+#### The `wrap` Option
+
+If you pass a string to the `wrap` option, every matching text segment will be wrapped in that element.  If you also specify the `wrapClass` option, the wrapping element will be assigned that class after it is created.  This is useful for attaching various styles from your css.
+
+E.g.
+
+*Input HTML*
+
+```html
+<div id="container">
+  Explaining how to wrap text in elements with and without classes assigned.
+</div>
+```
+
+*JS*
+
+```js
+findAndReplaceDOMText(document.getElementById('container'), {
+ find: 'without',
+ wrap: 'em'
+});
+findAndReplaceDOMText(document.getElementById('container'), {
+ find: 'with ',
+ wrap: 'em',
+ wrapClass: 'shiny'
+});
+```
+
+*CSS*
+
+```css
+.shiny {
+ background-color: yellow;
+}
+```
+
+*Output HTML*
+
+```html
+<div id="container">
+  Explaining how to wrap text in elements <em class="shiny">with </em>and <em>without</em> classes assigned.
 </div>
 ```
 
