@@ -1,5 +1,5 @@
 /**
- * findAndReplaceDOMText v 0.4.5
+ * findAndReplaceDOMText v 0.4.6
  * @author James Padolsey http://james.padolsey.com
  * @license http://unlicense.org/UNLICENSE
  *
@@ -334,14 +334,18 @@
 				if (curNode.nodeType === Node.TEXT_NODE) {
 
 					if (!endPortion && curNode.length + atIndex >= match.endIndex) {
-
 						// We've found the ending
+						// (Note that, in the case of a single portion, it'll be an
+						// endPortion, not a startPortion.)
 						endPortion = {
 							node: curNode,
 							index: portionIndex++,
 							text: curNode.data.substring(match.startIndex - atIndex, match.endIndex - atIndex),
-							indexInMatch: atIndex - match.startIndex,
-							indexInNode: match.startIndex - atIndex, // always zero for end-portions
+
+							// If it's the first match (atIndex==0) we should just return 0
+							indexInMatch: atIndex === 0 ? 0 : atIndex - match.startIndex,
+
+							indexInNode: match.startIndex - atIndex,
 							endIndexInNode: match.endIndex - atIndex,
 							isEnd: true
 						};
@@ -459,7 +463,7 @@
 						replacement = match.input.substring(match.endIndex);
 						break;
 					default:
-						replacement = match[+t];
+						replacement = match[+t] || '';
 				}
 				return replacement;
 			});

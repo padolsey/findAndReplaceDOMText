@@ -328,6 +328,17 @@ test('Right (\')', function() {
 	htmlEqual(d.innerHTML, 'this is [ test] test');
 });
 
+test('Empty captured groups', function() {
+	var d = document.createElement('div');
+	d.innerHTML = '111333';
+	findAndReplaceDOMText(d, {
+		find: /(1+)(\s+)?(3+)/g,
+		replace: '$3$2$1'
+	});
+	// $2 is empty, so should be replaced by nothing (empty string):
+	htmlEqual(d.innerHTML, '333111');
+});
+
 module('Filtering');
 
 test('Element filtering', function() {
@@ -479,4 +490,45 @@ test('prose', function() {
 		</div>\
 	');
 
+});
+
+module('indexInMatch');
+
+test('Single portion', function() {
+	var d = document.createElement('div');
+	d.innerHTML = '___AAAAA';
+	//                ^ 0
+	findAndReplaceDOMText(d, {
+		find: /A+/g,
+		replace: function(portion) {
+			return portion.indexInMatch;
+		}
+	});
+	htmlEqual(d.innerHTML, '___0');
+});
+
+test('Two portions', function() {
+	var d = document.createElement('div');
+	d.innerHTML = '___AAA<em>AA</em>';
+	//                ^ 0    ^ 3
+	findAndReplaceDOMText(d, {
+		find: /A+/g,
+		replace: function(portion) {
+			return portion.indexInMatch;
+		}
+	});
+	htmlEqual(d.innerHTML, '___0<em>3</em>');
+});
+
+test('>Two portions', function() {
+	var d = document.createElement('div');
+	d.innerHTML = '___AA<em>A</em>A<u>A</u>';
+	//                ^ 0   ^ 2   ^ 3 ^ 4
+	findAndReplaceDOMText(d, {
+		find: /A+/g,
+		replace: function(portion) {
+			return portion.indexInMatch;
+		}
+	});
+	htmlEqual(d.innerHTML, '___0<em>2</em>3<u>4</u>');
 });

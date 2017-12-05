@@ -1,6 +1,6 @@
 {
   "name": "findandreplacedomtext",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "main": "./src/findAndReplaceDOMText.js",
   "description": "findAndReplaceDOMText: DOM find/replace utility",
   "repository": {

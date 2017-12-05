@@ -262,6 +262,7 @@ exposed.PRESETS = {
 
 ### Changelog
 
+ * 0.4.6 (5 Dec 2017): Fix indexInMatch ([See #60](https://github.com/padolsey/findAndReplaceDOMText/issues/60)). Fix undefined being echoed in optional+empty capture groups ([See #70](https://github.com/padolsey/findAndReplaceDOMText/issues/70)).
  * 0.4.4 (4 May 2015): Remove duplicate key from `NON_CONTIGUOUS_PROSE_ELEMENTS`. Expose library via UMD ([See #32](https://github.com/padolsey/findAndReplaceDOMText/issues/32)).
  * 0.4.3 (28 Apr 2015): Add `preset:prose` and `forceContext` features. [See #29](https://github.com/padolsey/findAndReplaceDOMText/issues/29).
  * 0.4.2 (30 Mar 2014): Fix IE to avoid incorrectly-closed-tags issue ([see #20](https://github.com/padolsey/findAndReplaceDOMText/issues/20)). Thanks to [shauryamal](https://github.com/shauryamal)!
